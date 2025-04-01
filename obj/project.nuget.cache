@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "spmjNMUlykQ=",
+  "success": true,
+  "projectFilePath": "F:\\JetBrains\\MyProject\\CSharp\\Selenium浏览器模拟\\GalgameSearchFor\\GalgameSearchFor.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\jiaxx\\.nuget\\packages\\fizzler\\1.2.0\\fizzler.1.2.0.nupkg.sha512",
+    "C:\\Users\\jiaxx\\.nuget\\packages\\fizzler.systems.htmlagilitypack\\1.2.1\\fizzler.systems.htmlagilitypack.1.2.1.nupkg.sha512",
+    "C:\\Users\\jiaxx\\.nuget\\packages\\htmlagilitypack\\1.12.0\\htmlagilitypack.1.12.0.nupkg.sha512"
+  ],
+  "logs": []
+}
