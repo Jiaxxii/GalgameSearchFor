@@ -3,15 +3,15 @@
 namespace GalgameSearchFor.GalGames.Sites.Results.DaoHe;
 
 [method: JsonConstructor]
-public readonly struct DaoHeResult(IEnumerable<GameInfo> gameInfos) : IValid
+public class DaoHeResult(IEnumerable<GameInfo> gameInfos) : IValid
 {
     [JsonPropertyName("items")] public IEnumerable<GameInfo> GameInfos { get; } = gameInfos;
 
-    public bool IsValid() => GameInfos is not null && GameInfos.Any();
+    public bool IsValid() => GameInfos.Any();
 }
 
 [method: JsonConstructor]
-public readonly struct GameInfo(string thumbLink, string showName, string rawName, string gameType, string gameInfoUrl, Dictionary<string, DownLoadPath[]> downloads, string ost)
+public class GameInfo(string thumbLink, string showName, string rawName, string gameType, string gameInfoUrl, Dictionary<string, DownLoadPath[]> downloads, string ost)
 {
     // /// <summary>
     // /// 通过 BaseUrl/info/{Id.SubString(4)} 获取游戏介绍
@@ -64,7 +64,7 @@ public readonly struct GameInfo(string thumbLink, string showName, string rawNam
 }
 
 [method: JsonConstructor]
-public readonly struct DownLoadPath(string url, string loadName)
+public class DownLoadPath(string url, string loadName)
 {
     public string Url { get; } = url;
 

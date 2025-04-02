@@ -7,5 +7,5 @@
 
 public interface IWrieConsole
 {
-    Task WriteConsoleAsync(IEnumerable<string> keys, int? millisecondsDelay = null, CancellationToken cancellationToken = default);
+    Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default);
 }

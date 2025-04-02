@@ -81,7 +81,7 @@ public abstract class SearcherFormResult<TResult>(Uri baseUri, TimeSpan? timeout
     public virtual Task SearchAsync(string key, CancellationToken cancellationToken) => _ = SearchResultAsync(key, cancellationToken);
 
 
-    public virtual async Task WriteConsoleAsync(IEnumerable<string> keys, int? millisecondsDelay = null, CancellationToken cancellationToken = default)
+    public virtual async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
     {
         Console.WriteLine($"网站名称：\e[48;2;255;255;0m\e[4;38;2;0;100;255m{_baseUri}\e[0m");
         await Console.Out.WriteLineAsync($"搜索关键字：[ \e[38;2;255;255;0m{string.Join(' ', keys)}\e[0m ]");
@@ -91,7 +91,7 @@ public abstract class SearcherFormResult<TResult>(Uri baseUri, TimeSpan? timeout
     protected static async Task<Stream> BuilderRequestBodyAsync<TTable>(TTable searchTable, JsonSerializerOptions? options = null, CancellationToken cancellationToken = default)
     {
         var stream = new MemoryStream();
-        await JsonSerializer.SerializeAsync(stream, searchTable, options ?? JsonSerializerSettings.CamelCaseSerializerOptions, cancellationToken);
+        await JsonSerializer.SerializeAsync(stream, searchTable, options ?? JsonSerializerSettings.TouchGalBuilderSerializerOptions, cancellationToken);
         stream.Position = 0;
 
         return stream;

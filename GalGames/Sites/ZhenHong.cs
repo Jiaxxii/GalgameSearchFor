@@ -6,7 +6,7 @@ namespace GalgameSearchFor.GalGames.Sites;
 public class ZhenHong(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(new Uri("https://www.shinnku.com"), timeout)
 {
     private const string SearchUrlPath = "/search";
-    private const string WikiUrlPath = "api/wiki?name=";
+    // private const string WikiUrlPath = "api/wiki?name=";
 
     private const string ResourcesListRootXPath = "//div[@class='p-4']";
 
@@ -34,7 +34,7 @@ public class ZhenHong(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(
         return Results = AnalysisHtml(ref content);
     }
 
-    public override async Task WriteConsoleAsync(IEnumerable<string> keys, int? millisecondsDelay = null, CancellationToken cancellationToken = default)
+    public override async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
     {
         foreach (var galgameInfo in Results)
         {
@@ -59,6 +59,7 @@ public class ZhenHong(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(
         var gameListCollection = _htmlDocument.DocumentNode.SelectNodes(ResourcesListRootXPath);
 
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (gameListCollection == null || gameListCollection.Count == 0) return [];
 
         var result = new List<GalgameInfo>();

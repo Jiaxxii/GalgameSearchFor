@@ -55,7 +55,7 @@ public class ZiLing(TimeSpan? timeout = null) : SearcherFormResult<GalgameInfo>(
         return result;
     }
 
-    public override async Task WriteConsoleAsync(IEnumerable<string> keys, int? millisecondsDelay = null, CancellationToken cancellationToken = default)
+    public override async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
     {
         foreach (var galgameInfo in Resource.Data.Content)
         {

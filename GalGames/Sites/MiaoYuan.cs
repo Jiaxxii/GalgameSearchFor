@@ -26,7 +26,7 @@ public class MiaoYuan(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(
         return Results = AnalysisHtml(ref content);
     }
 
-    public override async Task WriteConsoleAsync(IEnumerable<string> keys, int? millisecondsDelay = null, CancellationToken cancellationToken = default)
+    public override async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
     {
         foreach (var galgameInfo in Results)
         {
@@ -37,9 +37,9 @@ public class MiaoYuan(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(
             await Console.Out.WriteLineAsync($"\uD83D\uDC64 上传作者：\e[38;2;76;252;246m{galgameInfo.Author.Name}\e[0m"); // 👤 人像
             await Console.Out.WriteLineAsync($"\uD83C\uDFE0 作者主页：\e[38;2;96;174;228m\e[4m{galgameInfo.Author.Link}\e[0m"); // 🏠 房屋
 
-            await Console.Out.WriteLineAsync($"\uD83D\uDCAC 评价人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.EvaluateCount}\e[0m \u2605"); // 💬 对话气泡+★
-            await Console.Out.WriteLineAsync($"\uD83D\uDC41\uFE0F 观看人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.WatchCount}\e[0m \uD83D\uDC40"); // 👁️ 眼睛
-            await Console.Out.WriteLineAsync($"\u2764\uFE0F 收藏人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.LikeCount}\e[0m \u2605"); // ❤️ 爱心+★
+            await Console.Out.WriteLineAsync($"\uD83D\uDCAC 评价人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.EvaluateCount}\e[0m"); // 💬 对话气泡+★
+            await Console.Out.WriteLineAsync($"\uD83D\uDC41\uFE0F 观看人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.WatchCount}\e[0m"); // 👁️ 眼睛
+            await Console.Out.WriteLineAsync($"\u2764\uFE0F 收藏人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.LikeCount}\e[0m"); // ❤️ 爱心+★
 
             Console.WriteLine();
         }

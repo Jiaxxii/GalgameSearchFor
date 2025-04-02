@@ -23,7 +23,7 @@ public class LiangZiACG(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo
         return Results = AnalysisHtml(ref content);
     }
 
-    public override async Task WriteConsoleAsync(IEnumerable<string> keys, int? millisecondsDelay = null, CancellationToken cancellationToken = default)
+    public override async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
     {
         foreach (var galgameInfo in Results)
         {

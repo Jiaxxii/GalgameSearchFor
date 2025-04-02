@@ -1,6 +1,5 @@
 ﻿using System.Text.Json;
 using GalgameSearchFor.ConsoleStyle.ANSI;
-using GalgameSearchFor.GalGames.Platform;
 using GalgameSearchFor.GalGames.Sites.ConstantSettings;
 using GalgameSearchFor.GalGames.Sites.Results;
 using GalgameSearchFor.GalGames.Sites.Results.DaoHe;
@@ -12,21 +11,22 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
 {
     private const string ResourceListPath = "/list";
 
-    private bool _isRequestGameInfoList;
+    // private bool _isRequestGameInfoList;
     private bool _isRequestComplete;
 
-    public DaoHeResult Resource { get; private set; }
+    public DaoHeResult? Resource { get; private set; }
 
 
     public override IEnumerable<GameInfo> SearchResult(string key)
     {
-        if (!_isRequestGameInfoList)
+        if (Resource == null)
         {
             throw new NullReferenceException($"[没有如何资源，请调用{nameof(SearchResultAsync)}]方法获取！");
         }
 
         if (!_isRequestComplete)
         {
+            // 如果正确的 await SearchResultAsync(string,CancellationToken) 方法不会触发此异常
             throw new NullReferenceException($"[确保等待{nameof(SearchResultAsync)}]方法后调用！");
         }
 
@@ -35,7 +35,7 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
 
     public override async Task<IEnumerable<GameInfo>> SearchResultAsync(string key, CancellationToken cancellationToken = default)
     {
-        if (!_isRequestGameInfoList)
+        if (Resource == null)
         {
             _ = await RequestGameInfoList(cancellationToken);
         }
@@ -43,7 +43,7 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
         return SearchResult(key);
     }
 
-    public override async Task WriteConsoleAsync(IEnumerable<string> keys, int? millisecondsDelay = null, CancellationToken cancellationToken = default)
+    public override async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
     {
         foreach (var galgameInfo in Results)
         {
@@ -71,15 +71,12 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
 
     private async Task<IEnumerable<GameInfo>> RequestGameInfoList(CancellationToken cancellationToken = default)
     {
-        if (_isRequestGameInfoList)
+        if (Resource != null)
         {
-            Console.WriteLine("资源列表已请求，请勿重复请求。");
-            return Results;
+            Console.WriteLine("\e[38;2;255;255;0m资源列表已请求，本次请求将刷新资源！\e[0m");
         }
 
-        _isRequestGameInfoList = true;
         _isRequestComplete = false;
-
         try
         {
             using var httpResponseMessage = await GetAsync(ResourceListPath, cancellationToken);
@@ -95,7 +92,6 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
         }
         catch (TaskCanceledException)
         {
-            _isRequestGameInfoList = false;
             _isRequestComplete = false;
             throw;
         }
@@ -106,7 +102,7 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
     {
         var resourcesResult = await JsonSerializer.DeserializeAsync<DaoHeResult>(stream, JsonSerializerSettings.CamelCaseSerializerOptions, cancellationToken);
 
-        if (!resourcesResult.IsValid())
+        if (resourcesResult is null || !resourcesResult.IsValid())
         {
             // TODO : 处理无效数据
             throw new JsonException();
