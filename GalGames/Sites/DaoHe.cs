@@ -1,14 +1,19 @@
 ﻿using System.Text.Json;
-using GalgameSearchFor.ConsoleStyle.ANSI;
 using GalgameSearchFor.GalGames.Sites.ConstantSettings;
 using GalgameSearchFor.GalGames.Sites.Results;
 using GalgameSearchFor.GalGames.Sites.Results.DaoHe;
 
 namespace GalgameSearchFor.GalGames.Sites;
 
-public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInfo>(new Uri("https://amoebi.com"), timeout)
-    , IResourceRootAsync<DaoHeResult>
+public sealed partial class DaoHe : SearcherFormResult<GameInfo>, IResourceRootAsync<DaoHeResult>
 {
+    private partial class InternalWriteConsole;
+
+    public DaoHe(TimeSpan? timeout = null) : base(new Uri("https://amoebi.com"), timeout)
+    {
+        WriteConsole = new InternalWriteConsole(Results, _baseUri);
+    }
+
     private const string ResourceListPath = "/list";
 
     // private bool _isRequestGameInfoList;
@@ -16,6 +21,8 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
 
     public DaoHeResult? Resource { get; private set; }
 
+
+    public override IWrieConsole WriteConsole { get; }
 
     public override IEnumerable<GameInfo> SearchResult(string key)
     {
@@ -43,31 +50,6 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
         return SearchResult(key);
     }
 
-    public override async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
-    {
-        foreach (var galgameInfo in Results)
-        {
-            await Console.Out.WriteLineAsync($"\uD83C\uDFAE 《\e[1;38;2;255;165;0m{galgameInfo.ShowName}\e[0m》（\e[1;38;2;255;165;0m{galgameInfo.RawName}\e[0m）"); // 游戏手柄
-            await Console.Out.WriteLineAsync(
-                $"\uD83D\uDDBC 类型：\e[38;2;229;129;123m{galgameInfo.GameType}\e[0m \uD83D\uDCAC 介绍：{new Uri(_baseUri, galgameInfo.GameInfoUrl).AbsoluteUri}"); // 画板+对话框
-            foreach (var downloadPair in galgameInfo.Downloads)
-            {
-                await Console.Out.WriteLineAsync($"\uD83D\uDCBB 平台：{ToStings.TargetPlatform(downloadPair.Key)}"); // 笔记本电脑
-                foreach (var downloadPath in downloadPair.Value)
-                {
-                    await Console.Out.WriteLineAsync($"\uD83D\uDD17 下载地址：\e[38;2;96;174;228m\e[4m{downloadPath.Url}\e[0m"); // 链接符号
-                }
-            }
-
-            Console.WriteLine();
-        }
-
-
-        Console.WriteLine($"\uD83C\uDF10 网站名称：\e[48;2;255;255;0m\e[4;38;2;0;100;255m{_baseUri}\e[0m"); // 地球图标
-        await Console.Out.WriteLineAsync($"\uD83D\uDD0D 搜索关键字：[ \e[38;2;255;255;0m{string.Join(' ', keys)}\e[0m ]"); // 放大镜图标
-        Console.WriteLine($"\uD83D\uDCC8 相关数量：\e[1m{Results.Count()}\e[0m\r\n"); // 上升图表
-    }
-
 
     private async Task<IEnumerable<GameInfo>> RequestGameInfoList(CancellationToken cancellationToken = default)
     {
@@ -77,16 +59,29 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
         }
 
         _isRequestComplete = false;
+        Stream? stream = null;
         try
         {
             using var httpResponseMessage = await GetAsync(ResourceListPath, cancellationToken);
 
-            httpResponseMessage.EnsureSuccessStatusCode();
+            if (httpResponseMessage.IsSuccessStatusCode)
+            {
+                stream = await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken);
+                await WriteLocalJsonFileAsync(stream, "DaoHeResult.json", cancellationToken);
+                stream.Position = 0;
+            }
+            else
+            {
+                Console.WriteLine("\e[38;2;255;0;0m请求被拒绝，将使用本地数据!\e[0m");
+                stream = ReadLocalJsonFileAsync("DaoHeResult.json");
+#if DEBUG
+                var streamToStringAsync = await StreamToStringAsync(stream);
+#endif
+            }
 
-            var readStream = await httpResponseMessage.Content.ReadAsStreamAsync(cancellationToken);
-
-            Resource = await RequestJsonDeserializeAsync(readStream, cancellationToken: cancellationToken);
+            Resource = await RequestJsonDeserializeAsync(stream, cancellationToken: cancellationToken);
             _isRequestComplete = true;
+
 
             return Resource.GameInfos;
         }
@@ -95,6 +90,38 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
             _isRequestComplete = false;
             throw;
         }
+        finally
+        {
+            if (stream != null)
+                await stream.DisposeAsync();
+        }
+    }
+
+    private static Task WriteLocalJsonFileAsync(Stream stream, string fileName, CancellationToken cancellationToken = default)
+    {
+        var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
+        Directory.CreateDirectory(AppContext.BaseDirectory);
+
+        Console.WriteLine($"本地存储：\e[38;2;96;174;228m\e[4m{filePath}\e[0m");
+        using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
+        return stream.CopyToAsync(fileStream, cancellationToken);
+    }
+
+
+    private static FileStream ReadLocalJsonFileAsync(string fileName)
+    {
+        var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
+        Console.WriteLine($"本地存储：\e[38;2;96;174;228m\e[4m{filePath}\e[0m");
+
+        if (!File.Exists(filePath))
+            throw new FileNotFoundException($"[文件不存在] {filePath}");
+
+        var fileStream = new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read, 4096, true);
+
+        if (fileStream.Length == 0)
+            throw new FileLoadException($"[文件内容为空] {filePath}");
+
+        return fileStream;
     }
 
 
@@ -110,7 +137,4 @@ public sealed class DaoHe(TimeSpan? timeout = null) : SearcherFormResult<GameInf
 
         return resourcesResult;
     }
-
-
-    public override string ToString() => $"\e[1m蹈荷（\e[38;2;96;174;228m\e[4m{_baseUri}）\e[0m";
 }

@@ -18,6 +18,8 @@ public abstract class SearcherFormResult<TResult>(Uri baseUri, TimeSpan? timeout
 
     protected readonly Uri _baseUri = baseUri;
 
+    public abstract IWrieConsole WriteConsole { get; }
+
 
     /// <summary>
     /// 发起 HTTP POST 请求
@@ -81,11 +83,9 @@ public abstract class SearcherFormResult<TResult>(Uri baseUri, TimeSpan? timeout
     public virtual Task SearchAsync(string key, CancellationToken cancellationToken) => _ = SearchResultAsync(key, cancellationToken);
 
 
-    public virtual async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
+    public async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
     {
-        Console.WriteLine($"网站名称：\e[48;2;255;255;0m\e[4;38;2;0;100;255m{_baseUri}\e[0m");
-        await Console.Out.WriteLineAsync($"搜索关键字：[ \e[38;2;255;255;0m{string.Join(' ', keys)}\e[0m ]");
-        Console.WriteLine($"相关数量：\e[1m{Results.Count()}\e[0m\r\n");
+        await WriteConsole.WriteConsoleAsync(keys, cancellationToken);
     }
 
     protected static async Task<Stream> BuilderRequestBodyAsync<TTable>(TTable searchTable, JsonSerializerOptions? options = null, CancellationToken cancellationToken = default)
@@ -105,4 +105,6 @@ public abstract class SearcherFormResult<TResult>(Uri baseUri, TimeSpan? timeout
         return readToEndAsync;
     }
 #endif
+
+    public override string ToString() => WriteConsole.ToString() ?? $"\e[38;2;96;174;228m\e[4m{_baseUri}\e[0m";
 }

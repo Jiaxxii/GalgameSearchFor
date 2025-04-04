@@ -1,12 +1,20 @@
-﻿using GalgameSearchFor.ConsoleStyle.ANSI;
-using GalgameSearchFor.GalGames.Sites.Results.MiaoYuan;
+﻿using GalgameSearchFor.GalGames.Sites.Results.MiaoYuan;
 using HtmlAgilityPack;
 
 namespace GalgameSearchFor.GalGames.Sites;
 
-public class MiaoYuan(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(new Uri("https://www.nekotaku.me"), timeout)
+public partial class MiaoYuan : HtmlAnalysisSite<GalgameInfo>
 {
+    private partial class InternalWriteConsole;
+
+    public MiaoYuan(TimeSpan? timeout = null) : base(new Uri("https://www.nekotaku.me"), timeout)
+    {
+        WriteConsole = new InternalWriteConsole(()=>Results, _baseUri);
+    }
+
     private const string SearchUriPath = "?s={NAME}&type=post";
+
+    public override IWrieConsole WriteConsole { get; }
 
 
     public override IEnumerable<GalgameInfo> SearchResult(string key)
@@ -26,28 +34,6 @@ public class MiaoYuan(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(
         return Results = AnalysisHtml(ref content);
     }
 
-    public override async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
-    {
-        foreach (var galgameInfo in Results)
-        {
-            await Console.Out.WriteLineAsync($"\uD83C\uDFAE {string.Join('、', galgameInfo.SplitName().Select(name => $"《\e[1;38;2;255;165;0m{name}\e[0m》"))}"); // 🎮 游戏手柄
-            await Console.Out.WriteLineAsync($"\uD83D\uDD17 游戏链接：\e[38;2;96;174;228m\e[4m{new Uri(_baseUri, galgameInfo.PageLink).AbsoluteUri}\e[0m"); // 🔗 链接符号
-            await Console.Out.WriteLineAsync($"\uD83D\uDCE2 标签：{string.Join(", ", galgameInfo.Tags.Select(ToStings.TargetPlatform))}"); // 📢 喇叭
-
-            await Console.Out.WriteLineAsync($"\uD83D\uDC64 上传作者：\e[38;2;76;252;246m{galgameInfo.Author.Name}\e[0m"); // 👤 人像
-            await Console.Out.WriteLineAsync($"\uD83C\uDFE0 作者主页：\e[38;2;96;174;228m\e[4m{galgameInfo.Author.Link}\e[0m"); // 🏠 房屋
-
-            await Console.Out.WriteLineAsync($"\uD83D\uDCAC 评价人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.EvaluateCount}\e[0m"); // 💬 对话气泡+★
-            await Console.Out.WriteLineAsync($"\uD83D\uDC41\uFE0F 观看人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.WatchCount}\e[0m"); // 👁️ 眼睛
-            await Console.Out.WriteLineAsync($"\u2764\uFE0F 收藏人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.LikeCount}\e[0m"); // ❤️ 爱心+★
-
-            Console.WriteLine();
-        }
-
-        Console.WriteLine($"\uD83C\uDF10 网站名称：\e[48;2;255;255;0m\e[4;38;2;0;100;255m{_baseUri}\e[0m"); // 🌐 地球图标
-        await Console.Out.WriteLineAsync($"\uD83D\uDD0E 搜索关键字：[ \e[38;2;255;255;0m{string.Join(' ', keys)}\e[0m ]"); // 🔍 放大镜
-        Console.WriteLine($"\uD83D\uDCCA 相关数量：\e[1m{Results.Count()}\e[0m\r\n"); // 📊 统计图表
-    }
 
     protected override List<GalgameInfo> AnalysisHtml(ref string html)
     {
@@ -55,6 +41,7 @@ public class MiaoYuan(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(
 
         var postsHtmlNodeCollection = _document.DocumentNode.SelectNodes("//div[contains(@class,'search-content')]/posts");
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (postsHtmlNodeCollection == null || postsHtmlNodeCollection.Count == 0) return [];
 
         var gameInfos = new List<GalgameInfo>();
@@ -108,6 +95,4 @@ public class MiaoYuan(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(
         var hotInfo = new HotInfo(evaluateCount, watchCount, likeCount);
         return hotInfo;
     }
-
-    public override string ToString() => $"\e[1m喵源领域（\e[38;2;96;174;228m\e[4m{_baseUri}）\e[0m";
 }

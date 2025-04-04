@@ -1,12 +1,20 @@
 ﻿using System.Globalization;
-using GalgameSearchFor.ConsoleStyle.ANSI;
 using GalgameSearchFor.GalGames.Sites.Results.LiangZi;
 using HtmlAgilityPack;
 
 namespace GalgameSearchFor.GalGames.Sites;
 
-public class LiangZiACG(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo>(new Uri("https://www.lzacg.org/"), timeout)
+public partial class LiangZiACG : HtmlAnalysisSite<GalgameInfo>
 {
+    private partial class InternalWireConsole;
+
+    public LiangZiACG(TimeSpan? timeout = null) : base(new Uri("https://www.lzacg.org/"), timeout)
+    {
+        WriteConsole = new InternalWireConsole(()=>Results, _baseUri);
+    }
+
+    public override IWrieConsole WriteConsole { get; }
+
     public override IEnumerable<GalgameInfo> SearchResult(string key)
     {
         throw new NotImplementedException();
@@ -23,25 +31,6 @@ public class LiangZiACG(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo
         return Results = AnalysisHtml(ref content);
     }
 
-    public override async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
-    {
-        foreach (var galgameInfo in Results)
-        {
-            await Console.Out.WriteLineAsync($"\uD83C\uDFAE 《\e[1;38;2;255;165;0m{ExtractByName(galgameInfo.Title)}\e[0m》");  // 🎮 游戏手柄
-            await Console.Out.WriteLineAsync($"\uD83D\uDCE2 标签：{string.Join(", ", galgameInfo.Tags.Select(ToStings.TargetPlatform))}");  // 📢 喇叭
-            await Console.Out.WriteLineAsync($"\uD83D\uDD17 游戏链接：\e[38;2;96;174;228m\e[4m{new Uri(_baseUri, galgameInfo.PageLink).AbsoluteUri}\e[0m");  // 🔗 链接符号
-    
-            await Console.Out.WriteLineAsync($"\uD83D\uDCC5 资源上传日期：\e[38;2;76;252;246m{galgameInfo.Created:yy-MM-dd HH:mm:ss}\e[0m");  // 📅 日历
-            await Console.Out.WriteLineAsync($"\uD83D\uDCAC 评价人数：\e[38;2;255;165;0m{galgameInfo.EvaluationCount}\e[0m");  // 💬 对话气泡
-            await Console.Out.WriteLineAsync($"\uD83D\uDC41\uFE0F 观看人数：\e[38;2;255;165;0m{galgameInfo.WatchCount}\e[0m");  // 👁️ 眼睛
-            Console.WriteLine();
-        }
-        
-        Console.WriteLine($"\uD83C\uDF10 网站名称：\e[48;2;255;255;0m\e[4;38;2;0;100;255m{_baseUri}\e[0m");  // 🌐 地球图标
-        await Console.Out.WriteLineAsync($"\uD83D\uDD0E 搜索关键字：[ \e[38;2;255;255;0m{string.Join(' ', keys)}\e[0m ]");  // 🔍 放大镜
-        Console.WriteLine($"\uD83D\uDCCA 相关数量：\e[1m{Results.Count()}\e[0m\r\n");  // 📊 统计图表
-    }
-
     private static string ExtractByName(string gameName)
     {
         // 【Gal】【PC】寻爱或赴死
@@ -55,6 +44,7 @@ public class LiangZiACG(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo
 
         var postsHtmlNodeCollection = _document.DocumentNode.SelectNodes("//div[contains(@class,'overflow-hidden')]/posts");
 
+        // ReSharper disable once ConditionIsAlwaysTrueOrFalseAccordingToNullableAPIContract
         if (postsHtmlNodeCollection == null || postsHtmlNodeCollection.Count == 0)
         {
             return [];
@@ -100,6 +90,4 @@ public class LiangZiACG(TimeSpan? timeout = null) : HtmlAnalysisSite<GalgameInfo
 
         return (dateTime, Parse(evaluateCount), Parse(watchCount));
     }
-    
-    public override string ToString() => $"\e[1m量子ACG（\e[38;2;96;174;228m\e[4m{_baseUri}）\e[0m";
 }

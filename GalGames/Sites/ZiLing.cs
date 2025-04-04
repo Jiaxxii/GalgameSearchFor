@@ -1,7 +1,6 @@
 ﻿using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
-using GalgameSearchFor.GalGames.Platform;
 using GalgameSearchFor.GalGames.Sites.ConstantSettings;
 using GalgameSearchFor.GalGames.Sites.RequestTable.ZiLingHome;
 using GalgameSearchFor.GalGames.Sites.Results;
@@ -9,14 +8,24 @@ using GalgameSearchFor.GalGames.Sites.Results.ZiLingHome;
 
 namespace GalgameSearchFor.GalGames.Sites;
 
-public class ZiLing(TimeSpan? timeout = null) : SearcherFormResult<GalgameInfo>(new Uri("https://zi0.cc"), timeout)
+public partial class ZiLing : SearcherFormResult<GalgameInfo>
     , ISearchTable<GalgameInfo, SearchTable>
     , IResourceRootAsync<ZiLingResult>
 {
+    private partial class InternalWriteConsole;
+
+    public ZiLing(TimeSpan? timeout = null) : base(new Uri("https://zi0.cc"), timeout)
+    {
+        WriteConsole = new InternalWriteConsole(()=>Resource, _baseUri);
+    }
+
+
     private const string SearchUrlPath = "api/fs/search";
 
     public ZiLingResult Resource { get; private set; }
 
+
+    public override IWrieConsole WriteConsole { get; }
 
     public override IEnumerable<GalgameInfo> SearchResult(string key)
     {
@@ -54,26 +63,7 @@ public class ZiLing(TimeSpan? timeout = null) : SearcherFormResult<GalgameInfo>(
 
         return result;
     }
-
-    public override async Task WriteConsoleAsync(IEnumerable<string> keys, CancellationToken cancellationToken = default)
-    {
-        foreach (var galgameInfo in Resource.Data.Content)
-        {
-            await Console.Out.WriteLineAsync($"\uD83C\uDFAE 《\e[1;38;2;255;165;0m{galgameInfo.Name}\e[0m》"); // 游戏手柄表情
-
-            var downloadUrl = new Uri(_baseUri, $"{Uri.EscapeDataString(galgameInfo.Parent)}/{galgameInfo.Name}?form=search");
-            await Console.Out.WriteLineAsync($"\uD83D\uDD17 游戏链接：\e[38;2;96;174;228m\e[4m{downloadUrl}\e[0m"); // 链接符号表情
-
-            await Console.Out.WriteLineAsync($"\uD83D\uDCC8 大小：\e[38;2;255;165;0m{galgameInfo.GetSizeString()}\e[0m"); // 上升图表表情
-
-            await Console.Out.WriteLineAsync($"\uD83D\uDCC0 是否是文件夹：\e[38;2;255;165;0m{(galgameInfo.IsDir ? '是' : '否')}\e[0m"); // 文件夹表情
-            Console.WriteLine();
-        }
-
-        Console.WriteLine($"\u2600\uFE0F 网站名称：\e[48;2;255;255;0m\e[4;38;2;0;100;255m{_baseUri}\e[0m"); // 太阳表情
-        await Console.Out.WriteLineAsync($"\uD83D\uDD0E 搜索关键字：[ \e[38;2;255;255;0m{string.Join(' ', keys)}\e[0m ]"); // 放大镜表情
-        Console.WriteLine($"\uD83D\uDCCA 相关数量：\e[1m{Resource.Data.Total}\e[0m\r\n"); // 统计图表表情
-    }
+    
 
 
     private async Task<IEnumerable<GalgameInfo>> RequestSearchResultAsync(Stream stream, CancellationToken cancellationToken = default)
@@ -95,5 +85,5 @@ public class ZiLing(TimeSpan? timeout = null) : SearcherFormResult<GalgameInfo>(
         return Resource.Data.Content;
     }
 
-    public override string ToString() => $"\e[1m梓澪の妙妙屋（\e[38;2;96;174;228m\e[4m{_baseUri}）\e[0m";
+    
 }
