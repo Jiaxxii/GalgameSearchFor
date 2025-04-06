@@ -11,6 +11,7 @@ public abstract class SearcherFormResult<TResult>(Uri baseUri, TimeSpan? timeout
     IWrieConsole
 {
     private readonly HttpClient _singleClient = MainHttpClient.GetClient();
+
     public TimeSpan? Timeout { get; set; } = timeout;
 
     public IEnumerable<TResult> Results { get; protected set; } = [];

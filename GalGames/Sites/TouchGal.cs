@@ -1,6 +1,4 @@
 ﻿using System.Text.Json;
-using GalgameSearchFor.ConsoleStyle.ANSI;
-using GalgameSearchFor.GalGames.Platform;
 using GalgameSearchFor.GalGames.Sites.ConstantSettings;
 using GalgameSearchFor.GalGames.Sites.RequestTable.TouchGalgame;
 using GalgameSearchFor.GalGames.Sites.Results;
@@ -8,13 +6,13 @@ using GalgameSearchFor.GalGames.Sites.Results.TouchGalgame;
 
 namespace GalgameSearchFor.GalGames.Sites;
 
-public partial class TouchGal: SearcherFormResult<GalgameInfo>
+public partial class TouchGal : SearcherFormResult<GalgameInfo>
     , ISearchTable<GalgameInfo, SearchTable>
     , IResourceRootAsync<TouchResult>
 {
     public TouchGal(TimeSpan? timeout = null) : base(new Uri("https://www.touchgal.io"), timeout)
     {
-        WriteConsole = new InternalWriteConsole(()=>Resource,_baseUri);
+        WriteConsole = new InternalWriteConsole(() => Resource, _baseUri);
     }
 
     private partial class InternalWriteConsole;
@@ -44,7 +42,6 @@ public partial class TouchGal: SearcherFormResult<GalgameInfo>
         throw new NotImplementedException();
     }
 
-    
 
     public async Task<IEnumerable<GalgameInfo>> SearchAsync(SearchTable key, CancellationToken cancellationToken = default)
     {
@@ -85,19 +82,21 @@ public partial class TouchGal: SearcherFormResult<GalgameInfo>
         // using var streamReader = new StreamReader(stream);
         // var json = await streamReader.ReadToEndAsync(cancellationToken);
 
+#if DEBUG
+        var streamToStringAsync = await StreamToStringAsync(stream);
+#endif
+
         var resourcesResult = await JsonSerializer.DeserializeAsync<TouchResult>(
             stream,
             options ?? JsonSerializerSettings.CamelCaseSerializerOptions,
             cancellationToken);
 
-        if (!resourcesResult.IsValid())
-        {
-            // TODO: 处理无效数据
-            throw new JsonException();
-        }
+        // if (resourcesResult is null)
+        // {
+        //     // TODO: 处理无效数据
+        //     throw new JsonException();
+        // }
 
         return resourcesResult;
     }
-
-    
 }

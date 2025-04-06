@@ -10,7 +10,7 @@ public readonly struct TouchResult(IEnumerable<GalgameInfo> galGames, int total)
     public int Total { get; } = total;
 
 
-    public bool IsValid() => GalGames is not null || GalGames.Any();
+    public bool IsValid() => GalGames is not null && GalGames.Any();
 }
 
 [method: JsonConstructor]

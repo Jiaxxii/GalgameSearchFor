@@ -102,7 +102,7 @@ public sealed partial class DaoHe : SearcherFormResult<GameInfo>, IResourceRootA
         var filePath = Path.Combine(AppContext.BaseDirectory, fileName);
         Directory.CreateDirectory(AppContext.BaseDirectory);
 
-        Console.WriteLine($"本地存储：\e[38;2;96;174;228m\e[4m{filePath}\e[0m");
+        // Console.WriteLine($"本地存储：\e[38;2;96;174;228m\e[4m{filePath}\e[0m");
         using var fileStream = new FileStream(filePath, FileMode.Create, FileAccess.Write, FileShare.None, 4096, true);
         return stream.CopyToAsync(fileStream, cancellationToken);
     }
@@ -129,7 +129,7 @@ public sealed partial class DaoHe : SearcherFormResult<GameInfo>, IResourceRootA
     {
         var resourcesResult = await JsonSerializer.DeserializeAsync<DaoHeResult>(stream, JsonSerializerSettings.CamelCaseSerializerOptions, cancellationToken);
 
-        if (resourcesResult is null || !resourcesResult.IsValid())
+        if (resourcesResult is null)
         {
             // TODO : 处理无效数据
             throw new JsonException();

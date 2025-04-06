@@ -1,5 +1,4 @@
 ﻿using System.Text;
-using GalgameSearchFor.GalGames.Platform;
 using HtmlAgilityPack;
 using RegexMatch = GalgameSearchFor.GalGames.Sites.ConstantSettings.RegexMatch;
 
@@ -8,7 +7,7 @@ namespace GalgameSearchFor.GalGames.Sites;
 public abstract class HtmlAnalysisSite<TGalgameInfo>(Uri url, TimeSpan? timeout = null) : SearcherFormResult<TGalgameInfo>(url, timeout)
 {
     protected readonly HtmlDocument _document = new();
-    protected readonly StringBuilder _stringBuilder = new(128);
+    private readonly StringBuilder _stringBuilder = new(128);
 
 
     protected abstract List<TGalgameInfo> AnalysisHtml(ref string html);

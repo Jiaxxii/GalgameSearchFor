@@ -1,9 +1,16 @@
 ﻿using System.Diagnostics;
+using System.Text.Json;
 using GalgameSearchFor.ConsoleStyle.Loading;
 using GalgameSearchFor.GalGames;
 using GalgameSearchFor.GalGames.Sites;
+using GalgameSearchFor.GalGames.Sites.ConstantSettings;
+using Serilog;
 
 Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .CreateLogger();
 
 Console.WriteLine(
     "\e[38;2;255;255;0m\uD83D\uDC64\e[0m 作者：" + // 黄色人像
@@ -16,6 +23,7 @@ Console.WriteLine(
 var userCancellation = new CancellationTokenSource();
 var searchCompleteCancellation = new CancellationTokenSource();
 
+// 取消搜索
 Console.CancelKeyPress += (_, eventArgs) =>
 {
     eventArgs.Cancel = true;
@@ -116,7 +124,8 @@ async Task<State> SearchAsync(string key)
         throw;
 #else
         // 超时
-        Console.WriteLine($"\e[43;34mERROR\e[0m任务超时！{e.Message}");
+        // Console.WriteLine($"\e[43;34mERROR\e[0m任务超时！{e.Message}");
+        Log.Error(e, "\e[43;34mERROR\e[0m任务超时！{msg}", e.Message);
         return State.Timeout;
 #endif
     }
@@ -124,11 +133,23 @@ async Task<State> SearchAsync(string key)
     {
         searchCompleteCancellation.Cancel();
 
-        Console.WriteLine($"\e[43;34mERROR\e[0m可能网络原因被取消{e.Message}");
+        // Console.WriteLine($"\e[43;34mERROR\e[0m可能网络原因被取消{e.Message}");
+        Log.Error(e, "\e[43;34mERROR\e[0m可能网络原因被取消{msg}", e.Message);
 #if DEBUG
         throw;
 #else
         return State.HttpRequestException;
+#endif
+    }
+    catch (Exception e)
+    {
+        searchCompleteCancellation.Cancel();
+        Log.Error(e, "\e[43;34mERROR\e[0m致命错误{msg}", e.Message);
+
+#if DEBUG
+        throw;
+#else
+        return State.Unknown;
 #endif
     }
 }
@@ -138,7 +159,8 @@ file enum State
     Complete,
     UserCanceled,
     Timeout,
-    HttpRequestException
+    HttpRequestException,
+    Unknown
 }
 
 file static class User
