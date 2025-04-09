@@ -59,7 +59,7 @@ public partial class ZhenHong : HtmlAnalysisSite<GalgameInfo>
         var result = new List<GalgameInfo>();
         foreach (var gameNode in gameListCollection)
         {
-            var gameName = gameNode.SelectSingleNode("//p[@class='text-lg']/text()").InnerText;
+            var gameName = gameNode.SelectSingleNode("div/div/div/p/text()").InnerText;
 
             // var pathName = gameNode.SelectSingleNode("div/div[2]//p[1]/text()[1]").InnerText;
             var path = gameNode.SelectSingleNode("div/div[2]//p[1]/text()[2]").InnerText;

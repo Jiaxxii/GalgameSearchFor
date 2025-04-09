@@ -8,13 +8,13 @@ using GalgameSearchFor.GalGames.Sites.Results.ZiLingHome;
 
 namespace GalgameSearchFor.GalGames.Sites;
 
-public partial class ZiLing : SearcherFormResult<GalgameInfo>
+public partial class YanYu : SearcherFormResult<GalgameInfo>
     , ISearchTable<GalgameInfo, SearchTable>
     , IResourceRootAsync<ZiLingResult>
 {
     private partial class InternalWriteConsole;
 
-    public ZiLing(TimeSpan? timeout = null) : base(new Uri("https://zi0.cc"), timeout)
+    public YanYu(TimeSpan? timeout = null) : base(new Uri("https://yanyugal.top"), timeout)
     {
         WriteConsole = new InternalWriteConsole(() => Resource, _baseUri);
     }

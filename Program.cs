@@ -1,12 +1,13 @@
 ﻿using System.Diagnostics;
-using System.Text.Json;
 using GalgameSearchFor.ConsoleStyle.Loading;
 using GalgameSearchFor.GalGames;
 using GalgameSearchFor.GalGames.Sites;
-using GalgameSearchFor.GalGames.Sites.ConstantSettings;
 using Serilog;
 
+
 Console.OutputEncoding = System.Text.Encoding.UTF8;
+
+// https://gal.saop.cc/search.json
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -40,8 +41,12 @@ ISearcher[] sites =
     new LiangZiACG(TimeSpan.FromSeconds(60)),
     new MiaoYuan(),
     new ZiLing(),
+    new YanYu(),
     new DaoHe(),
+    new QiMeng()
 ];
+
+Console.WriteLine($"共 \e[38;2;255;165;0m{sites.Length}\e[0m 个站点");
 
 
 while (!userCancellation.IsCancellationRequested)
@@ -78,6 +83,8 @@ while (!userCancellation.IsCancellationRequested)
             } while (keyInfo.Key != ConsoleKey.Enter);
 
             Console.Write("\e[2J\e[H");
+            Console.Clear();
+            Console.WriteLine("\e[3J");
         }
 
         Console.Clear();
