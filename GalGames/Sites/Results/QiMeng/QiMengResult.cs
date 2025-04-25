@@ -14,30 +14,31 @@ public class QiMengResult(IReadOnlyList<GalgameItem> results, int pageCount) : I
 }
 
 [method: JsonConstructor]
-public readonly struct GalgameItem(string titleName, string synopsis, string type, DateTime createdTime, HotInfo hotInfo, string gamePageLink, IEnumerable<string> imageUrls)
+public readonly struct GalgameItem(string gamePageLink, string titleName, string imageUrl)
 {
     public string GamePageLink { get; } = gamePageLink;
 
     public string TitleName { get; } = titleName;
 
-    public string Synopsis { get; } = synopsis;
+    // public string Synopsis { get; } = synopsis;
 
-    public IEnumerable<string> ImageUrls { get; } = imageUrls;
+    // public IEnumerable<string> ImageUrls { get; } = imageUrls;
+    public string ImageUrl { get; } = imageUrl;
 
-    public string Type { get; } = type;
-
-    public DateTime CreatedTime { get; } = createdTime;
-
-    public HotInfo HotInfo { get; } = hotInfo;
+    // public string Type { get; } = type;
+    //
+    // public DateTime CreatedTime { get; } = createdTime;
+    //
+    // public HotInfo HotInfo { get; } = hotInfo;
 
 
     public IEnumerable<string> SplitGameName(char separator = '/') => TitleName.Split(separator);
 }
 
-[method: JsonConstructor]
-public readonly struct HotInfo(int watch, int evaluate, int like)
-{
-    public int Watch { get; } = watch;
-    public int Evaluate { get; } = evaluate;
-    public int Like { get; } = like;
-}
+// [method: JsonConstructor]
+// public readonly struct HotInfo(int watch, int evaluate, int like)
+// {
+//     public int Watch { get; } = watch;
+//     public int Evaluate { get; } = evaluate;
+//     public int Like { get; } = like;
+// }

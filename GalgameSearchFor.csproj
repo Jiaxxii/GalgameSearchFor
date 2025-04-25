@@ -21,10 +21,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="GalGames\Obsolete\" />
-    </ItemGroup>
-
-    <ItemGroup>
       <Compile Remove="GalGames\Platform\**" />
     </ItemGroup>
 
