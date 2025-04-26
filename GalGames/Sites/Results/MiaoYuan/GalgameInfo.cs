@@ -1,13 +1,13 @@
 ﻿namespace GalgameSearchFor.GalGames.Sites.Results.MiaoYuan;
 
-public readonly struct GalgameInfo(string imageUrl, string pageLink, string title, IEnumerable<string> tags, Author author, HotInfo hotInfo)
+public readonly struct GalgameInfo(string imageUrl, string pageLink, string title, IEnumerable<string> tags, HotInfo hotInfo)
 {
     public string ImageUrl { get; } = imageUrl;
     public string PageLink { get; } = pageLink;
     public string Title { get; } = title;
     public IEnumerable<string> Tags { get; } = tags;
 
-    public Author Author { get; } = author;
+    // public Author Author { get; } = author;
 
     public HotInfo HotInfo { get; } = hotInfo;
 
@@ -18,12 +18,12 @@ public readonly struct GalgameInfo(string imageUrl, string pageLink, string titl
     }
 }
 
-public readonly struct Author(string portraitUrl, string name, string link)
-{
-    public string PortraitUrl { get; } = portraitUrl;
-    public string Name { get; } = name;
-    public string Link { get; } = link;
-}
+// public readonly struct Author(string portraitUrl, string name, string link)
+// {
+//     public string PortraitUrl { get; } = portraitUrl;
+//     public string Name { get; } = name;
+//     public string Link { get; } = link;
+// }
 
 public readonly struct HotInfo(int evaluateCount, int watchCount, int likeCount)
 {

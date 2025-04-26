@@ -17,6 +17,7 @@ public static class MainHttpClient
             // 连接池策略
             PooledConnectionLifetime = TimeSpan.FromSeconds(30), // 短生命周期，快速切换连接
             EnableMultipleHttp2Connections = true, // 强制多路复用
+            AllowAutoRedirect = false, // 禁止自动重定向
 
             // 超时控制
             // ConnectTimeout = TimeSpan.FromSeconds(3), // 快速失败
@@ -24,7 +25,8 @@ public static class MainHttpClient
 
             // 绕过反爬
             AutomaticDecompression = DecompressionMethods.All, // 解压缩节省带宽
-            UseCookies = false // 禁用 Cookie 保持
+            UseCookies = true, // 禁用 Cookie 保持
+            CookieContainer = new CookieContainer()
         };
 
         // 创建全局 HttpClient 实例，设置默认超时为 30 秒

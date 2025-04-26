@@ -1,4 +1,5 @@
-﻿using GalgameSearchFor.GalGames.Sites.Results.MiaoYuan;
+﻿using System.Web;
+using GalgameSearchFor.GalGames.Sites.Results.MiaoYuan;
 using HtmlAgilityPack;
 
 namespace GalgameSearchFor.GalGames.Sites;
@@ -7,9 +8,9 @@ public partial class MiaoYuan : HtmlAnalysisSite<GalgameInfo>
 {
     private partial class InternalWriteConsole;
 
-    public MiaoYuan(TimeSpan? timeout = null) : base(new Uri("https://www.nekotaku.me"), timeout)
+    public MiaoYuan(TimeSpan? timeout = null) : base(new Uri("https://www.nyantaku.com"), timeout)
     {
-        WriteConsole = new InternalWriteConsole(()=>Results, _baseUri);
+        WriteConsole = new InternalWriteConsole(() => Results, _baseUri);
     }
 
     private const string SearchUriPath = "?s={NAME}&type=post";
@@ -24,12 +25,14 @@ public partial class MiaoYuan : HtmlAnalysisSite<GalgameInfo>
 
     public override async Task<IEnumerable<GalgameInfo>> SearchResultAsync(string key, CancellationToken cancellationToken = default)
     {
-        var httpResponseMessage = await GetAsync(SearchUriPath.Replace("{NAME}", key), cancellationToken);
+        var searchString = HttpUtility.UrlPathEncode(key);
+        var search = SearchUriPath.Replace("{NAME}", searchString);
 
+        var httpResponseMessage = await GetAsync(search, cancellationToken);
+        
         httpResponseMessage.EnsureSuccessStatusCode();
-
+        
         var content = await httpResponseMessage.Content.ReadAsStringAsync(cancellationToken);
-
 
         return Results = AnalysisHtml(ref content);
     }
@@ -53,10 +56,10 @@ public partial class MiaoYuan : HtmlAnalysisSite<GalgameInfo>
 
             var tags = posts.SelectNodes("div[2]/div[1]/a").Select(a => Trim(a.InnerText));
 
-            var author = GetAuthor(posts.SelectSingleNode("div[2]/div[2]"));
+            // var author = GetAuthor(posts.SelectSingleNode("div[2]/div[2]"));
             var hotInfo = GetHot(posts.SelectSingleNode("div[2]/div[2]"));
 
-            var gameInfo = new GalgameInfo(gameImageUrl, gamePageLink, title, tags, author, hotInfo);
+            var gameInfo = new GalgameInfo(gameImageUrl, gamePageLink, title, tags, hotInfo);
 
             gameInfos.Add(gameInfo);
         }
@@ -73,17 +76,17 @@ public partial class MiaoYuan : HtmlAnalysisSite<GalgameInfo>
         return (gamePageLink, title);
     }
 
-    private static Author GetAuthor(HtmlNode node, string xPath = "item")
-    {
-        var authorNode = node.SelectSingleNode(xPath);
-        var authorLink = authorNode.SelectSingleNode("a").GetAttributeValue("href", string.Empty);
-
-        var headLink = authorNode.SelectSingleNode("a/span/img").GetAttributeValue("data-src", string.Empty);
-        var authorName = authorNode.SelectSingleNode("span/text()").InnerText;
-
-        var author = new Author(headLink, authorName, authorLink);
-        return author;
-    }
+    // private static Author GetAuthor(HtmlNode node, string xPath = "item")
+    // {
+    //     var authorNode = node.SelectSingleNode(xPath);
+    //     var authorLink = authorNode.SelectSingleNode("a").GetAttributeValue("href", string.Empty);
+    //
+    //     var headLink = authorNode.SelectSingleNode("a/span/img").GetAttributeValue("data-src", string.Empty);
+    //     var authorName = authorNode.SelectSingleNode("span/text()").InnerText;
+    //
+    //     var author = new Author(headLink, authorName, authorLink);
+    //     return author;
+    // }
 
     private static HotInfo GetHot(HtmlNode node, string xPath = "div")
     {

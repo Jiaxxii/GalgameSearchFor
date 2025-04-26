@@ -8,9 +8,9 @@ public partial class LiangZiACG : HtmlAnalysisSite<GalgameInfo>
 {
     private partial class InternalWireConsole;
 
-    public LiangZiACG(TimeSpan? timeout = null) : base(new Uri("https://www.lzacg.org/"), timeout)
+    public LiangZiACG(TimeSpan? timeout = null) : base(new Uri("https://lzacg.org/"), timeout)
     {
-        WriteConsole = new InternalWireConsole(()=>Results, _baseUri);
+        WriteConsole = new InternalWireConsole(() => Results, _baseUri);
     }
 
     public override IWrieConsole WriteConsole { get; }
@@ -20,6 +20,8 @@ public partial class LiangZiACG : HtmlAnalysisSite<GalgameInfo>
         throw new NotImplementedException();
     }
 
+    // https://lzacg.org/?s=同居恋人洛丽塔/
+    // https://lzacg.org/?s=同居恋人洛丽塔/
     public override async Task<IEnumerable<GalgameInfo>> SearchResultAsync(string key, CancellationToken cancellationToken = default)
     {
         var httpResponseMessage = await GetAsync(string.Concat("?s=", key), cancellationToken);

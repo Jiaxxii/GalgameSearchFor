@@ -24,9 +24,10 @@ public partial class QiMeng : HtmlAnalysisSite<GalgameItem>, IResourceRoot<QiMen
         throw new NotImplementedException();
     }
 
+
     public override async Task<IEnumerable<GalgameItem>> SearchResultAsync(string key, CancellationToken cancellationToken = default)
     {
-        using var httpResponseMessage = await GetAsync($"{SearchUriPath}/{Uri.EscapeDataString(key)}", cancellationToken);
+        using var httpResponseMessage = await GetAsync($"{SearchUriPath}/{Uri.EscapeDataString(key)}/", cancellationToken);
 
         httpResponseMessage.EnsureSuccessStatusCode();
 

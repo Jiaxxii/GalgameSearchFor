@@ -15,9 +15,10 @@ public partial class MiaoYuan
                 await Console.Out.WriteLineAsync($"\uD83C\uDFAE {string.Join('、', galgameInfo.SplitName().Select(name => $"《\e[1;38;2;255;165;0m{name}\e[0m》"))}");
                 await Console.Out.WriteLineAsync($"\uD83D\uDD17 游戏链接：\e[38;2;96;174;228m\e[4m{new Uri(baseUri, galgameInfo.PageLink).AbsoluteUri}\e[0m");
                 await Console.Out.WriteLineAsync($"\uD83D\uDCE2 标签：{string.Join(", ", galgameInfo.Tags.Select(ToStings.TargetPlatform))}");
+                await Console.Out.WriteLineAsync($"\uD83D\uDCE2 插画：{galgameInfo.ImageUrl}");
 
-                await Console.Out.WriteLineAsync($"\uD83D\uDC64 上传作者：\e[38;2;76;252;246m{galgameInfo.Author.Name}\e[0m");
-                await Console.Out.WriteLineAsync($"\uD83C\uDFE0 作者主页：\e[38;2;96;174;228m\e[4m{galgameInfo.Author.Link}\e[0m");
+                // await Console.Out.WriteLineAsync($"\uD83D\uDC64 上传作者：\e[38;2;76;252;246m{galgameInfo.Author.Name}\e[0m");
+                // await Console.Out.WriteLineAsync($"\uD83C\uDFE0 作者主页：\e[38;2;96;174;228m\e[4m{galgameInfo.Author.Link}\e[0m");
 
                 await Console.Out.WriteLineAsync($"\uD83D\uDCAC 评价人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.EvaluateCount}\e[0m");
                 await Console.Out.WriteLineAsync($"\uD83D\uDC41\uFE0F 观看人数：\e[38;2;255;165;0m{galgameInfo.HotInfo.WatchCount}\e[0m");

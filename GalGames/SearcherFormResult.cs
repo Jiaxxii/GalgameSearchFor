@@ -50,6 +50,16 @@ public abstract class SearcherFormResult<TResult>(Uri baseUri, TimeSpan? timeout
     }
 
 
+    protected virtual Task<HttpResponseMessage> SendAsync(string urlPath, HttpRequestMessage requestMessage, CancellationToken cancellationToken = default)
+    {
+        if (requestMessage.RequestUri == null)
+        {
+            requestMessage.RequestUri = new Uri(_baseUri, urlPath);
+        }
+
+        return ExecuteAsync(token => _singleClient.SendAsync(requestMessage, token), cancellationToken);
+    }
+
     private Task<HttpResponseMessage> ExecuteAsync(Func<CancellationToken, Task<HttpResponseMessage>> requestFactory, CancellationToken cancellationToken)
     {
         if (Timeout == null)
